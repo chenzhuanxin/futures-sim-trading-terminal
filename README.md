@@ -106,9 +106,11 @@
 
 **方式一（最简）：下载 Release 里的 exe**
 
-到 [Releases](../../releases) 下载 `期货模拟交易终端.exe`（约 10 MB 单文件），双击即可——自带 Python 运行时，**无需安装 Python、无需联网装依赖**，数据保存在 exe 旁边（绿色便携）。
+到 [Releases](../../releases) 下载 `futures-sim-terminal-v1.0.0-win64.exe`（约 10 MB 单文件），双击即可——自带 Python 运行时，**无需安装 Python、无需联网装依赖**，数据保存在 exe 旁边（绿色便携）。
 
 **方式二：源码运行**
+
+到 [Releases](../../releases) 下载源码包 `futures-sim-trading-terminal-v1.0.0-source.zip`（约 2.7 MB，解压即用），或直接克隆仓库：
 
 ```bash
 git clone https://github.com/chenzhuanxin/futures-sim-trading-terminal.git
@@ -137,6 +139,7 @@ futures-sim-trading-terminal/
 ├── 品种参数.json          # 91 个品种：合约乘数/最小变动价位/保证金率/手续费/涨跌停/交易时段（可编辑）
 ├── 启动模拟交易.bat        # Windows 一键启动
 ├── 打包成exe.py           # 一键打包脚本（自动画图标 + PyInstaller 构建 + 自检）
+├── 打包源码zip.py         # 生成发布用源码包（只收 git 跟踪文件，含 UTF-8 文件名与完整性自检）
 ├── 推送更新到github.py     # 网络受限时的备用推送：经 GitHub REST API 把本地文件同步到远端
 ├── 图标.ico               # 应用图标
 ├── 自测_行情策略回测.py    # 指标数学/周期/策略/回测/复盘/资金管理/导出 自测（86 项）
