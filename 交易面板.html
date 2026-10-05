@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>国内期货模拟交易终端</title>
+<style>
+:root{
+  --bg:#eef2f7; --panel:#fff; --panel2:#f7f9fc; --line:#dfe6ef; --line2:#eaeff5;
+  --txt:#1b2432; --txt2:#5b6b80; --txt3:#8b9aad;
+  --accent:#2563eb; --accent2:#1d4ed8; --accent-soft:#eaf1ff;
+  --up:#d8342b; --down:#0a9d5c; --flat:#6b7a8d;
+  --warn:#b06a05; --warnbg:#fdf5e6;
+  --radius:10px; --shadow:0 1px 2px rgba(16,32,64,.05),0 6px 20px rgba(16,32,64,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);
+  font:13px/1.55 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1780px;margin:0 auto;padding:0 18px}
+
+/* ---------- 页头 ---------- */
+header{background:linear-gradient(180deg,#fff,#fbfcfe);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:60;box-shadow:0 1px 0 rgba(16,32,64,.03)}
+.hd{display:flex;align-items:center;gap:14px;height:58px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15.5px;white-space:nowrap}
+.logo .mark{width:28px;height:28px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,#2563eb,#0ea5e9);display:flex;align-items:center;
+  justify-content:center;color:#fff;font-size:14px;font-weight:800}
+.hd .spacer{flex:1}
+.hd .rbtns{display:flex;align-items:center;gap:8px;flex:none}
+.pill{font-size:11.5px;padding:3px 9px;border-radius:20px;background:var(--panel2);
+  border:1px solid var(--line);color:var(--txt2);white-space:nowrap}
+.pill b{color:var(--txt);font-weight:600}
+.pill.live{background:#e9f7f0;border-color:#c6ebd8;color:#0a7a48}
+.pill.off{background:#fdf0ef;border-color:#f7d3d0;color:#b32b23}
+
+/* ---------- 通用 ---------- */
+main{padding:14px 0 40px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.card>.hd2{display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.card>.hd2 h3{margin:0;font-size:13.5px;font-weight:650}
+.card>.hd2 .desc{color:var(--txt3);font-size:11.5px;flex:1;min-width:120px}
+.card>.bd{padding:12px 14px}
+button.btn,.btn{font:inherit;font-size:12.5px;padding:6px 12px;border-radius:7px;
+  border:1px solid var(--line);background:#fff;color:var(--txt);cursor:pointer;white-space:nowrap}
+button.btn:hover,.btn:hover{border-color:#c3cfe0;background:var(--panel2)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.btn.primary:hover{background:var(--accent2)}
+button.btn.buy{background:#d8342b;border-color:#d8342b;color:#fff;font-weight:600}
+button.btn.buy:hover{background:#bf2c24}
+button.btn.sell{background:#0a9d5c;border-color:#0a9d5c;color:#fff;font-weight:600}
+button.btn.sell:hover{background:#088549}
+button.btn.danger{border-color:#f0c4c0;color:#b32b23}
+button.btn.danger:hover{background:#fdf0ef}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+select,input{font:inherit;font-size:12.5px;padding:6px 9px;border:1px solid var(--line);
+  border-radius:7px;background:#fff;color:var(--txt);outline:none;min-width:0}
+select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[type=search]{min-width:150px}
+input[type=number]{text-align:right;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;padding:4px 11px;border-radius:20px;border:1px solid var(--line);
+  background:#fff;color:var(--txt2);cursor:pointer;user-select:none;white-space:nowrap}
+.chip:hover{border-color:#c3cfe0}
+.chip.on{background:var(--accent-soft);border-color:#bed3ff;color:var(--accent2);font-weight:600}
+.sep{width:1px;height:20px;background:var(--line);margin:0 3px}
+.mini{font-size:11.5px;color:var(--txt3)}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--flat)}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:14px}
+@media(max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:10px 13px;box-shadow:var(--shadow)}
+.kpi .k{color:var(--txt3);font-size:11.5px;margin-bottom:3px}
+.kpi .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.kpi .x{font-size:11px;color:var(--txt3);margin-top:2px}
+.kpi.hl{background:linear-gradient(180deg,#fff,#f6faff);border-color:#cfe0f7}
+
+/* ---------- 主区布局 ---------- */
+.main2{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(330px,1fr);gap:14px;align-items:start}
+@media(max-width:1180px){.main2{grid-template-columns:1fr}}
+.tradecol{position:sticky;top:72px}
+@media(max-width:1180px){.tradecol{position:static}}
+
+/* ---------- 表格 ---------- */
+.tw{overflow:auto;max-height:392px;border-top:1px solid var(--line2)}
+.tw.tall{max-height:560px}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+thead th{position:sticky;top:0;z-index:2;background:var(--panel2);text-align:right;
+  font-weight:600;color:var(--txt2);padding:8px 9px;border-bottom:1px solid var(--line);
+  white-space:nowrap;cursor:pointer;user-select:none}
+thead th:first-child,thead th.l{text-align:left;cursor:default}
+thead th.plain{cursor:default}
+thead th:hover{color:var(--accent)}
+thead th .ar{opacity:.25;font-size:10px;margin-left:3px}
+thead th.sorted{color:var(--accent)}
+thead th.sorted .ar{opacity:1}
+tbody td{padding:6px 9px;text-align:right;border-bottom:1px solid var(--line2);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody td:first-child,tbody td.l{text-align:left}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#f6f9ff}
+tbody tr.sel{background:#eaf1ff!important;box-shadow:inset 3px 0 0 var(--accent)}
+td.name{font-weight:600}
+td.code{font-family:ui-monospace,Consolas,Menlo,monospace;font-weight:600}
+.empty{padding:34px 16px;text-align:center;color:var(--txt3);font-size:12.5px}
+
+/* ---------- 下单面板 ---------- */
+.selbox{background:linear-gradient(180deg,#f8fbff,#fff);border:1px solid var(--line);
+  border-radius:9px;padding:10px 12px;margin-bottom:11px}
+.selbox .row1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.selbox .cname{font-size:15px;font-weight:700}
+.selbox .ccode{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:12px;color:var(--txt3)}
+.selbox .px{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.selbox .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 10px;margin-top:8px;
+  font-size:11.5px;color:var(--txt2)}
+.selbox .meta b{color:var(--txt);font-weight:600;font-variant-numeric:tabular-nums}
+.dirrow{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px}
+.dirbtn{padding:9px 6px;border-radius:8px;border:1px solid var(--line);background:#fff;
+  cursor:pointer;text-align:center;font-weight:600;font-size:13px;color:var(--txt2);user-select:none}
+.dirbtn:hover{border-color:#c3cfe0;background:var(--panel2)}
+.dirbtn.on[data-t="buy"]{background:#fdeceb;border-color:#f0bdb8;color:#b32b23}
+.dirbtn.on[data-t="sell"]{background:#e9f7f0;border-color:#b8e3cd;color:#0a7a48}
+.dirbtn.on[data-t="closebuy"]{background:#eef6ff;border-color:#cfe2ff;color:#1f5fbf}
+.dirbtn.on[data-t="closesell"]{background:#f6f0ff;border-color:#e0d3fa;color:#6b3fc4}
+.frow{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.frow label{font-size:12px;color:var(--txt2);width:58px;flex:none}
+.frow .grow{flex:1;display:flex;gap:6px;align-items:center}
+.frow input,.frow select{flex:1;width:100%}
+.est{background:var(--panel2);border:1px solid var(--line2);border-radius:8px;
+  padding:9px 11px;font-size:12px;color:var(--txt2);line-height:1.9;margin-bottom:10px}
+.est .r{display:flex;justify-content:space-between;gap:10px}
+.est .r b{color:var(--txt);font-variant-numeric:tabular-nums}
+.submitrow{display:grid;grid-template-columns:1fr;gap:7px}
+.msgline{font-size:12px;padding:7px 10px;border-radius:7px;margin-top:9px;display:none;line-height:1.6}
+.msgline.show{display:block}
+.msgline.ok{background:#eefaf3;border:1px solid #c8ebd9;color:#0a7a48}
+.msgline.err{background:#fdf0ef;border:1px solid #f7d3d0;color:#b32b23}
+.msgline.info{background:#eff6ff;border:1px solid #cfe2ff;color:#1e4f9c}
+
+/* ---------- 标签页 ---------- */
+.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line2);
+  background:var(--panel);padding:0 6px}
+.tabs button{appearance:none;border:0;background:transparent;font:inherit;font-size:13px;
+  color:var(--txt2);padding:10px 13px;cursor:pointer;border-bottom:2px solid transparent;
+  white-space:nowrap}
+.tabs button:hover{color:var(--txt);background:var(--panel2)}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tabs button .n{display:inline-block;min-width:16px;font-size:10.5px;background:var(--accent-soft);
+  color:var(--accent2);border-radius:9px;padding:0 5px;margin-left:5px;font-weight:600}
+.pane{display:none}
+.pane.on{display:block}
+
+/* ---------- 图表 ---------- */
+.chart{width:100%;height:330px}
+
+/* ---------- 弹窗 ---------- */
+.mask{position:fixed;inset:0;background:rgba(16,32,64,.42);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:20px}
+.mask.on{display:flex}
+.modal{background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(16,32,64,.3);
+  width:100%;max-width:430px;overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
+.modal .mhd{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line2)}
+.modal .mhd h3{margin:0;font-size:14px;font-weight:650;flex:1}
+.modal .mhd .x{cursor:pointer;color:var(--txt3);font-size:18px;line-height:1;padding:0 4px}
+.modal .mhd .x:hover{color:var(--txt)}
+.modal .mbd{padding:15px 16px;overflow:auto}
+.modal .mft{padding:11px 16px;border-top:1px solid var(--line2);display:flex;gap:8px;
+  justify-content:flex-end;background:var(--panel2)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;color:var(--txt2);margin-bottom:5px}
+.fld input,.fld select{width:100%}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.quick .chip{font-size:11.5px;padding:3px 10px}
+.note{font-size:11.5px;color:var(--txt3);line-height:1.7}
+.chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--txt);margin-bottom:11px}
+.chk input{width:15px;height:15px;flex:none;padding:0}
+
+/* ---------- 页脚 ---------- */
+footer{background:#fff;border-top:1px solid var(--line);padding:18px 0 26px;margin-top:8px}
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media(max-width:900px){.fgrid{grid-template-columns:1fr}}
+footer h5{margin:0 0 8px;font-size:12.5px;font-weight:650;color:var(--txt)}
+footer .use{font-size:11.8px;color:var(--txt2);line-height:1.95}
+.tag{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:4px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--txt2);margin-left:6px;vertical-align:1px}
+.tag.night{background:#f6f0ff;border-color:#e0d3fa;color:#6b3fc4}
+.tag.warnp{background:var(--warnbg);border-color:#f0dcb4;color:var(--warn)}
+.notice{padding:9px 13px;border-radius:8px;font-size:12px;margin-bottom:12px;
+  border:1px solid;line-height:1.7}
+.notice.warn{background:var(--warnbg);border-color:#f0dcb4;color:var(--warn)}
+.notice.err{background:#fdf0ef;border-color:#f7d3d0;color:#b32b23}
+.notice.ok{background:#eefaf3;border-color:#c8ebd9;color:#0a7a48}
+</style>
+<link rel="stylesheet" href="vendor/quant-terminal.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="logo"><span class="mark">期</span>国内期货模拟交易终端</div>
+    <span class="pill" id="mktPill">行情加载中…</span>
+    <div class="spacer"></div>
+    <div class="rbtns">
+      <span class="pill" id="accPill">账户 --</span>
+      <span class="pill" id="eqPill">权益 <b>--</b></span>
+      <button class="btn primary" id="btnDeposit">资金注入</button>
+      <button class="btn" id="btnWithdraw">资金提取</button>
+      <button class="btn" id="btnRefresh">刷新行情</button>
+      <button class="btn" id="btnSettings">设置</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+    <div class="topnav" id="topNav">
+    <button class="on" data-page="market">行情 · 技术指标</button>
+    <button data-page="trade">模拟交易</button>
+    <button data-page="strategy">策略选股 · 策略交易</button>
+    <button data-page="backtest">策略回测</button>
+    <button data-page="replay">复盘</button>
+    <button data-page="account">账户 · 银期转账</button>
+  </div>
+
+  <!-- ============ 行情 · 技术指标 ============ -->
+  <div class="page on" id="page-market">
+    <div class="mk">
+      <aside class="card mk-side">
+        <div class="hd2"><h3>合约列表</h3><span class="desc" id="mkModeDesc">主力连续</span></div>
+        <div class="bd">
+          <input type="search" id="mkSearch" class="w100" placeholder="搜索代码 / 名称 / 品种…">
+          <div class="seg" id="mkMode">
+            <button class="on" data-mode="main">主力连续</button>
+            <button data-mode="real">具体合约</button>
+            <button data-mode="hold">我的持仓</button>
+          </div>
+          <div class="chips" id="mkSector"></div>
+        </div>
+        <div class="tw mk-list">
+          <table>
+            <thead><tr><th class="l">合约</th><th class="l">名称</th>
+              <th>最新</th><th>涨跌</th></tr></thead>
+            <tbody id="mkBody"><tr><td colspan="4" class="empty">加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </aside>
+
+      <section class="mk-main">
+        <div class="card">
+          <div class="hd2">
+            <h3 id="mkTitle">--</h3>
+            <span class="bigpx" id="mkPrice">--</span>
+            <span id="mkChg" class="chg">--</span>
+            <span class="desc" id="mkMeta"></span>
+          </div>
+          <div class="bd">
+            <div class="mkrow">
+              <span class="lbl">周期</span>
+              <div class="seg" id="periodSeg"></div>
+            </div>
+            <div class="mkrow">
+              <span class="lbl">主图</span>
+              <div class="indpick" id="mainPick"></div>
+            </div>
+            <div class="mkrow">
+              <span class="lbl">副图</span>
+              <div class="indpick" id="subPick"></div>
+            </div>
+            <div class="mkrow">
+              <button class="btn primary" id="btnLoadChart">加载图表</button>
+              <button class="btn" id="btnIndLib">指标库</button>
+              <label class="ck"><input type="checkbox" id="ckSignal"> 叠加策略信号</label>
+              <select id="signalStrategy" class="sel"></select>
+              <span class="sp"></span>
+              <button class="btn" id="btnChartToTrade">用该合约下单 →</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="bd">
+            <div class="kchart" id="kChart"></div>
+            <div class="mini" id="mkNote"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ============ 策略选股 · 策略交易 ============ -->
+  <div class="page" id="page-strategy">
+    <div class="st">
+      <aside class="card st-lib">
+        <div class="hd2"><h3>策略库</h3><span class="desc" id="stCount"></span>
+          <button class="btn primary" id="btnNewStrategy">＋ 新建策略</button></div>
+        <div class="bd" id="stList"><div class="mini">加载中…</div></div>
+      </aside>
+      <section class="card st-edit">
+        <div class="hd2"><h3 id="stEditTitle">新建策略</h3>
+          <span class="desc">选模板 → 调参数 → 选定品种池 → 存库／挂载</span></div>
+        <div class="bd"><div class="frm" id="stForm"></div></div>
+      </section>
+    </div>
+
+    <div class="card">
+      <div class="hd2"><h3>策略选股</h3>
+        <span class="desc">在策略的品种池上扫描，列出最近的信号</span></div>
+      <div class="bd">
+        <div class="frow">
+          <label>回看根数</label>
+          <input id="scanLookback" class="w60" value="3">
+          <button class="btn primary" id="btnScan">开始选股</button>
+          <span class="mini" id="scanInfo"></span>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th class="l">合约</th><th class="l">名称</th><th class="l">品种类型</th>
+            <th>信号</th><th>信号价</th><th>距今</th><th>最新价</th><th>涨跌幅</th>
+            <th class="l">触发原因</th><th class="l">可交易合约</th>
+            <th class="plain">操作</th>
+          </tr></thead>
+          <tbody id="scanBody"><tr><td colspan="11" class="empty">选择策略后点「开始选股」</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd2"><h3>策略运行</h3>
+        <span class="desc">挂载后由后台每约 30 秒巡检一次，出现新信号按配置执行</span></div>
+      <div class="bd"><div id="stRunBox"><div class="mini">暂无挂载中的策略</div></div></div>
+    </div>
+  </div>
+
+  <!-- ============ 策略回测 ============ -->
+  <div class="page" id="page-backtest">
+    <div class="card">
+      <div class="hd2"><h3>回测参数</h3>
+        <span class="desc">第 i 根收盘出信号 → 第 i+1 根开盘成交（无未来函数）</span></div>
+      <div class="bd"><div class="frm" id="btForm"></div></div>
+    </div>
+    <div id="btResult"></div>
+  </div>
+
+  <!-- ============ 复盘 ============ -->
+  <div class="page" id="page-replay">
+    <div class="card">
+      <div class="hd2"><h3>复盘设置</h3>
+        <span class="desc">指定区间逐根回放，可在任意位置按当根收盘价手动记一笔交易</span></div>
+      <div class="bd"><div class="frm" id="rpForm"></div></div>
+    </div>
+    <div id="rpResult"></div>
+  </div>
+
+  <!-- ============ 账户 · 银期转账 ============ -->
+  <div class="page" id="page-account">
+    <div class="kpis">
+      <div class="kpi hl"><div class="k">当前登录</div><div class="v" id="aLogin">--</div><div class="x" id="aLoginX">登录账号</div></div>
+      <div class="kpi"><div class="k">交易账户</div><div class="v mono" id="aTradeAcc" style="font-size:15px">--</div><div class="x">期货资金账号</div></div>
+      <div class="kpi"><div class="k">动态权益</div><div class="v" id="aEquity">--</div><div class="x">期货账户</div></div>
+      <div class="kpi"><div class="k">可用资金</div><div class="v" id="aAvail">--</div><div class="x">可银期转出上限</div></div>
+      <div class="kpi"><div class="k">银行卡余额</div><div class="v" id="aBankSum">--</div><div class="x" id="aBankCnt">-- 张卡</div></div>
+      <div class="kpi"><div class="k">账户数</div><div class="v" id="aCnt">--</div><div class="x">模拟账户总数</div></div>
+    </div>
+
+    <div class="acc-grid">
+      <div class="card">
+        <div class="hd2"><h3>登录 / 切换账户</h3><span class="desc">用「登录账号 + 登录密码」登录，切换后载入该账户独立的持仓与资金</span></div>
+        <div class="bd">
+          <div class="frow"><label>账户</label><div class="grow"><select id="aSel"></select></div></div>
+          <div class="frow"><label>登录密码</label><div class="grow"><input type="password" id="aLoginPwd" placeholder="登录密码"></div></div>
+          <div class="frow"><label></label><div class="grow"><button class="btn primary" id="aBtnLogin">登录 / 切换</button></div></div>
+          <div class="note">默认账户 <b>sim001</b>：登录密码 / 资金密码 / 银行卡密码均为 <code>123456</code>。所有密码仅加盐哈希保存在本机 <code>账户数据/users.json</code>。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd2"><h3>新建模拟账户</h3><span class="desc">创建后自动登录；交易账户（资金账号）自动分配，可绑定一张首卡</span></div>
+        <div class="bd">
+          <div class="frow"><label>登录账号</label><div class="grow"><input type="text" id="aNLogin" placeholder="3-20 位字母/数字/下划线"></div></div>
+          <div class="frow"><label>登录密码</label><div class="grow"><input type="password" id="aNLoginPwd" placeholder="至少 6 位"></div></div>
+          <div class="frow"><label>资金密码</label><div class="grow"><input type="password" id="aNTradePwd" placeholder="出金时校验，留空=同登录密码"></div></div>
+          <div class="sep-v" style="height:1px;width:auto;background:var(--line)"></div>
+          <div class="frow"><label>首卡银行</label><div class="grow"><select id="aNBank"></select>
+            <input type="text" id="aNCard" placeholder="卡号 12-19 位" style="flex:1.4"></div></div>
+          <div class="frow"><label>卡密码</label><div class="grow"><input type="password" id="aNCardPwd" placeholder="至少 6 位"></div>
+            <input type="number" id="aNBalance" value="1000000" min="0" step="10000" title="卡内余额" style="width:110px"></div>
+          <div class="frow"><label></label><div class="grow"><button class="btn primary" id="aBtnAdd">创建并登录</button></div></div>
+          <div class="note">不绑首卡也可以：创建后先在右侧「银行卡」里加卡，再银期转入资金。首卡两行都不填则跳过绑卡。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd2"><h3>模拟银行卡</h3><span class="desc">解绑前须先转出卡内余额；删除需银行交易密码</span></div>
+        <div class="bd">
+          <div class="acc-tbl"><table id="aBankTbl"></table></div>
+          <div class="sep-v" style="height:1px;width:auto;background:var(--line)"></div>
+          <div class="frow"><label>银行</label><div class="grow"><select id="abBank"></select>
+            <input type="text" id="abCard" placeholder="卡号 12-19 位" style="flex:1.4"></div></div>
+          <div class="frow"><label>卡密码</label><div class="grow"><input type="password" id="abPwd" placeholder="至少 6 位"></div>
+            <input type="number" id="abBalance" value="1000000" min="0" step="10000" title="卡内余额" style="width:110px"></div>
+          <div class="frow"><label></label><div class="grow"><button class="btn primary" id="aBtnBankAdd">添加银行卡</button></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd2"><h3>银期转账</h3><span class="desc">转入验银行密码；转出验银行密码 + 资金密码，且不超过可用资金</span></div>
+        <div class="bd">
+          <div class="frow"><label>方向</label><div class="grow">
+            <button class="btn tiny on" id="aDirIn">转入（卡 → 期货）</button>
+            <button class="btn tiny" id="aDirOut">转出（期货 → 卡）</button></div></div>
+          <div class="frow"><label>银行卡</label><div class="grow"><select id="aTBank"></select></div></div>
+          <div class="frow"><label>金额</label><div class="grow"><input type="number" id="aTAmt" value="100000" min="0" step="1000">
+            <span class="chip" data-qa="10000">1万</span><span class="chip" data-qa="100000">10万</span>
+            <span class="chip" data-qa="500000">50万</span></div></div>
+          <div class="frow"><label>银行密码</label><div class="grow"><input type="password" id="aTBankPwd" placeholder="银行交易密码"></div></div>
+          <div class="frow" id="aTPwdRow" style="display:none"><label>资金密码</label><div class="grow"><input type="password" id="aTTradePwd" placeholder="期货账户资金密码（转出需要）"></div></div>
+          <div class="frow"><label></label><div class="grow"><button class="btn primary" id="aBtnTransfer">确认转账</button></div></div>
+          <div class="note" id="aTTip"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd2"><h3>转账流水</h3><span class="desc">期货账户出入金流水（银期转入 / 银期转出）</span></div>
+      <div class="bd"><div class="acc-tbl"><table id="aFlowTbl"></table></div></div>
+    </div>
+
+    <div class="card">
+      <div class="hd2"><h3>删除模拟账户</h3><span class="desc">需登录密码确认；删除后该账户的持仓 / 资金 / 流水一并清除，不可恢复</span></div>
+      <div class="bd">
+        <div class="frow"><label>账户</label><div class="grow"><select id="aDelSel"></select></div></div>
+        <div class="frow"><label>登录密码</label><div class="grow"><input type="password" id="aDelPwd" placeholder="该账户的登录密码"></div>
+          <button class="btn danger" id="aBtnDel">删除账户</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-trade">
+
+  <div class="kpis">
+    <div class="kpi hl"><div class="k">动态权益</div><div class="v" id="kEquity">--</div><div class="x" id="kEquityX">结存 + 浮动盈亏</div></div>
+    <div class="kpi"><div class="k">可用资金</div><div class="v" id="kAvail">--</div><div class="x">可用于开新仓</div></div>
+    <div class="kpi"><div class="k">占用保证金</div><div class="v" id="kMargin">--</div><div class="x" id="kMarginX">-- 个持仓</div></div>
+    <div class="kpi"><div class="k">浮动盈亏</div><div class="v" id="kFloat">--</div><div class="x">持仓逐笔盯市</div></div>
+    <div class="kpi"><div class="k">已实现盈亏</div><div class="v" id="kReal">--</div><div class="x" id="kFeeX">累计手续费 --</div></div>
+    <div class="kpi"><div class="k">账户风险度</div><div class="v" id="kRisk">--</div><div class="x" id="kRiskX">保证金 / 动态权益</div></div>
+  </div>
+
+  <div class="notice warn" id="noDataNotice" style="display:none"></div>
+
+  <div class="main2">
+    <!-- 左：行情 -->
+    <div>
+      <div class="card">
+        <div class="hd2">
+          <h3>合约行情</h3>
+          <span class="desc" id="listDesc">点击任意合约即可在右侧下单</span>
+          <input type="search" id="qSearch" placeholder="搜索代码 / 名称 / 品种…">
+        </div>
+        <div class="bd">
+          <div class="chips" id="exchChips" style="margin-bottom:7px"></div>
+          <div class="chips" id="sectorChips" style="margin-bottom:9px"></div>
+          <div class="chips">
+            <span class="chip on" id="chipSort">按成交量降序</span>
+            <span class="chip" id="chipLimit">显示前 200 条</span>
+            <span class="chip" id="chipOnlyPos">仅看我持仓的合约</span>
+          </div>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th class="l">合约</th>
+              <th class="l">名称</th>
+              <th data-sort="p">最新价<span class="ar">▼</span></th>
+              <th data-sort="zdf">涨跌幅<span class="ar">▼</span></th>
+              <th data-sort="vol">成交量<span class="ar">▼</span></th>
+              <th data-sort="ccl">持仓量<span class="ar">▼</span></th>
+              <th class="plain">持仓手数</th>
+            </tr></thead>
+            <tbody id="qBody"><tr><td colspan="7" class="empty">行情加载中…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右：下单 -->
+    <div class="tradecol">
+      <div class="card">
+        <div class="hd2"><h3>模拟下单</h3><span class="desc" id="orderHint">请先在左侧选择合约</span></div>
+        <div class="bd">
+          <div class="selbox" id="selBox">
+            <div class="row1">
+              <span class="cname" id="selName">未选择合约</span>
+              <span class="ccode" id="selCode">--</span>
+              <span id="selTag"></span>
+            </div>
+            <div class="row1" style="margin-top:4px">
+              <span class="px" id="selPx">--</span>
+              <span id="selZdf" class="mini">--</span>
+            </div>
+            <div class="meta">
+              <div>合约乘数 <b id="selMult">--</b></div>
+              <div>最小变动 <b id="selTick">--</b></div>
+              <div>保证金率 <b id="selRate">--</b></div>
+            </div>
+            <div class="meta">
+              <div>涨停 <b id="selZt" class="up">--</b></div>
+              <div>跌停 <b id="selDt" class="down">--</b></div>
+              <div>涨跌停板 <b id="selLimit">--</b></div>
+            </div>
+            <div class="meta">
+              <div>手续费·开 <b id="selFeeOpen">--</b></div>
+              <div>手续费·平今 <b id="selFeeToday">--</b></div>
+              <div>每跳价值 <b id="selJump">--</b></div>
+            </div>
+            <div class="mini" id="selRule" style="margin-top:7px;line-height:1.7"></div>
+          </div>
+
+          <div class="dirrow" id="dirRow">
+            <div class="dirbtn on" data-t="buy"   data-dir="long"  data-offset="open">买入开多</div>
+            <div class="dirbtn"    data-t="sell"  data-dir="short" data-offset="open">卖出开空</div>
+            <div class="dirbtn"    data-t="closebuy"  data-dir="long"  data-offset="close">平多</div>
+            <div class="dirbtn"    data-t="closesell" data-dir="short" data-offset="close">平空</div>
+          </div>
+
+          <div class="frow">
+            <label>价格方式</label>
+            <div class="grow">
+              <select id="fPriceType">
+                <option value="market">市价（最新价成交）</option>
+                <option value="limit">限价（挂单撮合）</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="frow" id="rowPrice" style="display:none">
+            <label>委托价</label>
+            <div class="grow">
+              <input type="number" id="fPrice" step="0.01" min="0">
+              <button class="btn" id="btnUseLast" title="填入最新价">最新价</button>
+              <button class="btn" id="btnUseZt" title="填入涨停价">涨停</button>
+              <button class="btn" id="btnUseDt" title="填入跌停价">跌停</button>
+            </div>
+          </div>
+          <div class="mini" id="priceTip" style="display:none;margin:-2px 0 9px 66px;line-height:1.65"></div>
+
+          <div class="frow" id="rowCloseMode" style="display:none">
+            <label>平仓方式</label>
+            <div class="grow">
+              <select id="fCloseMode">
+                <option value="auto">自动（先平昨，再平今）</option>
+                <option value="today">只平今仓</option>
+                <option value="yesterday">只平昨仓</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="frow">
+            <label>手数</label>
+            <div class="grow">
+              <input type="number" id="fLots" value="1" min="1" step="1">
+              <button class="btn" id="btnHalf">半仓</button>
+              <button class="btn" id="btnFull">满仓</button>
+            </div>
+          </div>
+
+          <div class="est" id="estBox">
+            <div class="r"><span>预计占用保证金</span><b id="estMargin">--</b></div>
+            <div class="r"><span>预计手续费</span><b id="estFee">--</b></div>
+            <div class="r"><span>该合约最多可开</span><b id="estMax">--</b></div>
+            <div class="r"><span id="lblClosable">当前可平（本方向）</span><b id="estClosable">--</b></div>
+            <div class="r"><span id="lblFeeBasis">费率口径</span><b id="estFeeBasis">--</b></div>
+          </div>
+
+          <div class="submitrow">
+            <button class="btn buy" id="btnSubmit" style="padding:11px">买入开多</button>
+          </div>
+          <div class="msgline" id="orderMsg"></div>
+          <div class="mini" style="margin-top:9px;line-height:1.7">
+            提示：市价单按最新价成交；限价单在价格触发后成交。委托价超出当日涨跌停板会被拒绝（可在「设置」关闭）。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 账户明细 -->
+  <div class="card">
+    <div class="tabs" id="tabs">
+      <button class="on" data-p="pos">持仓<span class="n" id="nPos">0</span></button>
+      <button data-p="ord">委托<span class="n" id="nOrd">0</span></button>
+      <button data-p="trd">成交</button>
+      <button data-p="flow">资金流水</button>
+      <button data-p="curve">权益曲线</button>
+      <button data-p="log">交易日志</button>
+      <button data-p="rules">交易规则与费率</button>
+    </div>
+
+    <div class="pane on" id="pane-pos">
+      <div class="tw tall">
+        <table>
+          <thead><tr>
+            <th class="l">合约</th><th class="l">名称</th><th>方向</th><th>手数</th>
+            <th>今 / 昨</th><th>开仓均价</th><th>最新价</th><th>保证金</th>
+            <th>浮动盈亏</th><th>收益率</th><th class="plain">操作</th>
+          </tr></thead>
+          <tbody id="posBody"><tr><td colspan="11" class="empty">暂无持仓</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-ord">
+      <div class="bd" style="padding:9px 14px 0">
+        <button class="btn" id="btnCancelAll">撤销全部挂单</button>
+      </div>
+      <div class="tw tall">
+        <table>
+          <thead><tr>
+            <th class="l">委托时间</th><th class="l">委托号</th><th class="l">合约</th>
+            <th>方向</th><th>开平</th><th>类型</th><th>委托价</th><th>手数</th>
+            <th>成交价</th><th>手续费</th><th>平仓盈亏</th><th class="l">状态</th>
+            <th class="plain">操作</th>
+          </tr></thead>
+          <tbody id="ordBody"><tr><td colspan="13" class="empty">暂无委托</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-trd">
+      <div class="tw tall">
+        <table>
+          <thead><tr>
+            <th class="l">成交时间</th><th class="l">成交号</th><th class="l">合约</th><th class="l">名称</th>
+            <th>方向</th><th>开平</th><th>成交价</th><th>手数</th>
+            <th>手续费</th><th>平仓盈亏</th><th class="l">备注</th>
+          </tr></thead>
+          <tbody id="trdBody"><tr><td colspan="11" class="empty">暂无成交</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-flow">
+      <div class="tw tall">
+        <table>
+          <thead><tr>
+            <th class="l">时间</th><th class="l">类型</th><th>金额</th>
+            <th class="l">备注</th><th>操作后结存</th>
+          </tr></thead>
+          <tbody id="flowBody"><tr><td colspan="5" class="empty">暂无资金流水</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-curve">
+      <div class="bd">
+        <div class="chartbox"><div class="chart" id="curveChart"></div></div>
+        <div class="mini" style="margin-top:9px">
+          记点频率：每 15 秒以及每次下单 / 成交后自动记一点；账户运行越久曲线越完整。
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-log">
+      <div class="tw tall">
+        <table>
+          <thead><tr><th class="l">时间</th><th class="l">类别</th><th class="l">内容</th></tr></thead>
+          <tbody id="logBody"><tr><td colspan="3" class="empty">暂无日志</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-rules">
+      <div class="bd">
+        <div class="mini" id="rulesNote"></div>
+        <div class="frow" style="margin:10px 0 2px">
+          <label>筛选</label>
+          <div class="grow">
+            <input type="search" id="ruleSearch" placeholder="搜索品种代码 / 名称、交易所…">
+          </div>
+        </div>
+      </div>
+      <div class="tw tall">
+        <table>
+          <thead><tr>
+            <th class="l">交易所</th><th class="l">代码</th><th class="l">品种</th>
+            <th>合约乘数</th><th>最小变动</th><th>每跳价值</th>
+            <th>保证金率</th><th>涨跌停板</th><th>做一手约需</th>
+            <th>开仓</th><th>平昨</th><th>平今</th>
+            <th class="l">合约月份 · 最后交易日</th><th class="l">交易时段</th>
+          </tr></thead>
+          <tbody id="ruleBody"><tr><td colspan="14" class="empty">加载中…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /page-trade -->
+
+</main>
+
+<footer>
+  <div class="wrap fgrid">
+    <div>
+      <h5>模拟盘口径说明</h5>
+      <div class="use" id="footNote"></div>
+    </div>
+    <div>
+      <h5>数据来源与参数</h5>
+      <div class="use">
+        行情：<a href="https://qhweb.eastmoney.com/quote" target="_blank">东方财富 · 期货行情接口 ↗</a>
+        （futsseapi.eastmoney.com，含最新价 / 结算价 / 涨停价 / 跌停价，公开实时数据）<br>
+        <b>保证金 · 手续费 · 交易规则全部取自东方财富期货官网公示口径：</b><br>
+        · 保证金率：<a href="https://qhweb.eastmoney.com/bzj/low" target="_blank">做一手需要多少钱 ↗</a>
+        · <a href="https://www.eastmoneyfutures.com/pages/service/jyts.html" target="_blank">交易提示（涨跌幅度 / 公司保证金比例）↗</a><br>
+        · 手续费：<a href="https://www.eastmoneyfutures.com/pages/service/sxf.html" target="_blank">公司手续费标准 ↗</a>（官网更新 2026-09-21）<br>
+        · 交易规则：<a href="https://www.eastmoneyfutures.com/pages/service/jygz.html" target="_blank">品种及交易规则（交易单位 / 最小变动价位 / 合约月份 / 最后交易日）↗</a><br>
+        · 交易时间：<a href="https://qhweb.eastmoney.com/tradinghours" target="_blank">交易时间（日盘 / 夜盘 / 集合竞价）↗</a><br>
+        落盘文件：<b>品种参数.json</b>（可自行修改，重启服务生效）；行情离线兜底 <b>快照/contracts.json</b><br>
+        账户数据：<b>账户数据/account.json</b>（仅存本机，不上传任何服务器）
+      </div>
+    </div>
+    <div>
+      <h5>风险提示</h5>
+      <div class="use">
+        本面板为<b>模拟交易工具</b>，所有资金、成交均为虚拟，<b>不涉及真实资金与真实委托</b>。<br>
+        行情来自公开接口，可能延迟或缺失；手续费与保证金参数为参考值，与期货公司实际收取可能存在差异。<br>
+        本工具仅供策略验证与学习研究，<b>不构成任何投资建议</b>。
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- 资金弹窗 -->
+<div class="mask" id="maskCash">
+  <div class="modal">
+    <div class="mhd"><h3 id="cashTitle">模拟资金注入</h3><span class="x" data-close="maskCash">×</span></div>
+    <div class="mbd">
+      <div class="fld">
+        <label>金额（元）</label>
+        <input type="number" id="cashAmount" value="100000" min="0" step="1000">
+        <div class="quick" id="cashQuick">
+          <span class="chip" data-v="10000">1 万</span>
+          <span class="chip" data-v="50000">5 万</span>
+          <span class="chip" data-v="100000">10 万</span>
+          <span class="chip" data-v="500000">50 万</span>
+          <span class="chip" data-v="1000000">100 万</span>
+        </div>
+      </div>
+      <div class="fld"><label>备注（可选）</label><input type="text" id="cashNote" placeholder="如：初始资金"></div>
+      <div class="note" id="cashTip"></div>
+    </div>
+    <div class="mft">
+      <button class="btn" data-close="maskCash">取消</button>
+      <button class="btn primary" id="cashConfirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 设置弹窗 -->
+<div class="mask" id="maskSet">
+  <div class="modal">
+    <div class="mhd"><h3>交易设置</h3><span class="x" data-close="maskSet">×</span></div>
+    <div class="mbd">
+      <div class="fld">
+        <label>保证金倍数（在东方财富公司保证金率基础上整体放大）</label>
+        <input type="number" id="sMarginMult" step="0.1" min="0.1">
+        <div class="quick" id="multQuick">
+          <span class="chip" data-v="1">1.0×</span><span class="chip" data-v="1.2">1.2×</span>
+          <span class="chip" data-v="1.5">1.5×</span><span class="chip" data-v="2">2.0×</span>
+        </div>
+      </div>
+      <div class="fld">
+        <label>手续费折扣（相对东方财富公司手续费标准）</label>
+        <input type="number" id="sFeeDisc" step="0.1" min="0" max="5">
+        <div class="quick" id="feeQuick">
+          <span class="chip" data-v="0">免手续费</span><span class="chip" data-v="0.5">5 折</span>
+          <span class="chip" data-v="1">1.0×</span>
+        </div>
+      </div>
+      <div class="fld">
+        <label>市价单滑点（跳，1 跳 = 该合约最小变动价位）</label>
+        <input type="number" id="sSlip" step="1" min="0">
+      </div>
+      <div class="fld">
+        <label>强平线（风险度 %，达到即自动强平）</label>
+        <input type="number" id="sRiskLine" step="5" min="10">
+      </div>
+      <div class="chk"><input type="checkbox" id="sAutoLiq"><label for="sAutoLiq" style="margin:0">启用自动强平</label></div>
+      <div class="chk"><input type="checkbox" id="sSessionOnly"><label for="sSessionOnly" style="margin:0">仅允许在交易时段下单</label></div>
+      <div class="chk"><input type="checkbox" id="sLimitCheck"><label for="sLimitCheck" style="margin:0">拒绝超出涨跌停板的委托价（东方财富「每日涨跌幅度」）</label></div>
+      <div class="note">
+        「仅交易时段下单」默认关闭，便于非交易时段用最新快照价验证策略。<br>
+        说明：修改保证金倍数会立即改变全部持仓的保证金占用与风险度。
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn danger" id="btnResetCash">重置账户（保留资金）</button>
+      <button class="btn danger" id="btnResetAll">清空重置</button>
+      <button class="btn primary" id="setConfirm">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/echarts.min.js"></script>
+<script>
+/* ===================================================================
+   国内期货模拟交易终端 · 前端
+   =================================================================== */
+const $ = (s) => document.querySelector(s);
+const el = (tag, attrs, ...kids) => {
+  const n = document.createElement(tag);
+  for (const k in (attrs || {})) {
+    if (k === 'html') n.innerHTML = attrs[k];
+    else if (k === 'text') n.textContent = attrs[k];
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), attrs[k]);
+    else if (attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]);
+  }
+  kids.flat().forEach(c => c && n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+  return n;
+};
+const fmt = (v, d = 2) => (v === null || v === undefined || v === '' || isNaN(v)) ? '--'
+  : Number(v).toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtInt = (v) => (v === null || v === undefined || isNaN(v)) ? '--' : Number(v).toLocaleString('zh-CN');
+const num = (v, d = 2) => (v === null || v === undefined || v === '' || isNaN(v)) ? null : Number(v);
+function money(v) { return v === null ? '--' : (v < 0 ? '-¥' : '¥') + fmt(Math.abs(v), 2); }
+function signCls(v) { return v > 0 ? 'up' : (v < 0 ? 'down' : 'flat'); }
+function signed(v, d = 2) { return v === null ? '--' : (v > 0 ? '+' : '') + fmt(v, d); }
+
+const S = {
+  cfg: null, contracts: [], byCode: {}, quote: {},   // quote: code -> 紧凑数组
+  state: null, sel: null, dir: 'long', offset: 'open',
+  sortKey: 'vol', sortDir: -1, limit: 200, onlyPos: false,
+  exch: '', sector: '', kw: '',
+  rowEls: {}, curveChart: null, cashMode: 'deposit',
+};
+
+/* ---------------- 网络 ---------------- */
+async function api(path, body) {
+  const opt = body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {};
+  const r = await fetch(path, opt);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+/* ---------------- 初始化 ---------------- */
+async function boot() {
+  try { S.cfg = await api('/api/config'); } catch (e) { console.warn(e); }
+  renderChips();
+  try {
+    const d = await api('/api/contracts');
+    S.contracts = d.contracts || [];
+    S.byCode = {}; S.contracts.forEach(c => S.byCode[c.code] = c);
+    setMktPill(d);
+    renderChips();
+    const rb = S.contracts.find(c => c.variety === 'RB' && c.month) || S.contracts[0];
+    if (rb) selectContract(rb.code);
+  } catch (e) {
+    $('#qBody').innerHTML = '<tr><td colspan="7" class="empty">合约列表加载失败：' + e.message + '</td></tr>';
+  }
+  renderTable();
+  await pollQuotes();
+  await pollState();
+  polling();
+  initCurve();
+  $('#footNote').innerHTML = (S.cfg && S.cfg['口径说明'] || []).map(x => '· ' + x).join('<br>');
+  renderRules();
+}
+
+let pollTimer1 = null, pollTimer2 = null;
+function polling() {
+  pollTimer1 = setInterval(pollQuotes, 5000);
+  pollTimer2 = setInterval(pollState, 4000);
+}
+
+function setMktPill(d) {
+  const p = $('#mktPill');
+  p.className = 'pill ' + (d.error ? 'off' : 'live');
+  p.innerHTML = d.error
+    ? '行情接口异常，使用快照 <b>' + (d.ts || '--') + '</b>'
+    : '行情 <b>' + (d.ts || '--') + '</b>　' + (d.source || '') + '　<b>' + fmtInt(d.contracts ? d.contracts.length : S.contracts.length) + '</b> 合约';
+}
+
+async function pollQuotes() {
+  try {
+    const d = await api('/api/quotes');
+    const m = {}; (d.q || []).forEach(a => m[a[0]] = a);
+    S.quote = m;
+    updateQuoteCells();
+    updateSelBox();
+    updateEstimates();
+    if ($('#pane-rules') && $('#pane-rules').classList.contains('on')) renderRules();
+  } catch (e) { /* 静默 */ }
+}
+
+async function pollState() {
+  try {
+    const d = await api('/api/state');
+    S.state = d;
+    renderAccount(d);
+    updateEstimates();
+  } catch (e) { /* 静默 */ }
+}
+
+/* ---------------- 账户渲染 ---------------- */
+function renderAccount(d) {
+  const a = d.account;
+  const p = $('#mktPill');
+  if (d.quoteError) p.className = 'pill off';
+
+  $('#eqPill').innerHTML = '权益 <b>' + money(a.equity) + '</b>';
+  updateKpis(a);
+
+  $('#nPos').textContent = a.positionCount;
+  const pend = (d.orders || []).filter(o => o.status === '待成交').length;
+  $('#nOrd').textContent = pend;
+  $('#nOrd').style.background = pend ? '#fdeceb' : '';
+  $('#nOrd').style.color = pend ? '#b32b23' : '';
+
+  renderPositions(a.positions);
+  renderOrders(d.orders || []);
+  renderTrades(d.trades || []);
+  renderFlow(d.cashFlow || []);
+  renderLogs(d.logs || []);
+  renderCurve(d.equityCurve || []);
+
+  if (!a.totalDeposit) {
+    $('#noDataNotice').style.display = 'block';
+    $('#noDataNotice').innerHTML = '<b>账户尚无资金。</b> 点击右上角「资金注入」注入模拟资金后即可开始交易（建议先注入 10 万元体验）。';
+  } else {
+    $('#noDataNotice').style.display = 'none';
+  }
+}
+
+function updateKpis(a) {
+  $('#kEquity').textContent = money(a.equity);
+  $('#kAvail').textContent = money(a.available);
+  $('#kAvail').className = 'v ' + (a.available < 0 ? 'down' : '');
+  $('#kMargin').textContent = money(a.margin);
+  $('#kMarginX').textContent = a.positionCount + ' 个持仓方向';
+  $('#kFloat').textContent = signed(a.floatPnl);
+  $('#kFloat').className = 'v ' + signCls(a.floatPnl);
+  $('#kReal').textContent = signed(a.realizedPnl);
+  $('#kReal').className = 'v ' + signCls(a.realizedPnl);
+  $('#kFeeX').textContent = '累计手续费 ' + money(a.totalFee);
+  const rg = Math.min(a.riskPct, 999);
+  $('#kRisk').textContent = rg.toFixed(2) + '%';
+  $('#kRisk').className = 'v ' + (rg >= 80 ? 'up' : (rg >= 50 ? '' : 'down'));
+  $('#kRiskX').textContent = a.margin > 0 ? (rg >= 80 ? '风险偏高，注意强平' : '安全区间') : '无持仓';
+  const netd = a.netDeposit;
+  $('#kEquityX').innerHTML = '净入金 ' + money(netd) + '　收益 ' + signed(a.equity - netd);
+}
+
+function renderPositions(list) {
+  const tb = $('#posBody');
+  if (!list || !list.length) { tb.innerHTML = '<tr><td colspan="11" class="empty">暂无持仓</td></tr>'; return; }
+  tb.innerHTML = '';
+  list.forEach(p => {
+    const tr = el('tr', { 'data-code': p.code },
+      el('td', { class: 'l code', text: p.code }),
+      el('td', { class: 'l name', text: p.name }),
+      el('td', {}, el('span', { class: p.dir === 'long' ? 'up' : 'down', text: p.dirLabel })),
+      el('td', { text: fmtInt(p.lots) }),
+      el('td', { class: 'mini', text: p.todayLots + ' / ' + p.yesterdayLots }),
+      el('td', { text: fmt(p.avgPrice, 4) }),
+      el('td', { class: signCls((p.zdf || 0)), text: fmt(p.lastPrice, 4) }),
+      el('td', { text: fmt(p.margin, 0) }),
+      el('td', { class: signCls(p.floatPnl), text: signed(p.floatPnl) }),
+      el('td', { class: signCls(p.floatPct), text: signed(p.floatPct) + '%' }),
+      el('td', {}, (() => {
+        const b = el('button', { class: 'btn', style: 'padding:3px 9px;font-size:11.5px', text: '平仓' });
+        b.addEventListener('click', ev => { ev.stopPropagation(); quickClose(p); });
+        return b;
+      })())
+    );
+    tr.addEventListener('click', () => selectContract(p.code));
+    tb.appendChild(tr);
+  });
+}
+
+function renderOrders(list) {
+  const tb = $('#ordBody');
+  if (!list || !list.length) { tb.innerHTML = '<tr><td colspan="13" class="empty">暂无委托</td></tr>'; return; }
+  tb.innerHTML = '';
+  list.forEach(o => {
+    const stCls = o.status === '待成交' ? 'up' : (o.status === '已成交' ? 'down' : 'flat');
+    const tr = el('tr', {},
+      el('td', { class: 'l mini', text: o.ts }),
+      el('td', { class: 'l mini', text: o.id }),
+      el('td', { class: 'l code', text: o.code }),
+      el('td', { class: o.offset === 'open' ? (o.dir === 'long' ? 'up' : 'down') : '', text: o.dirLabel }),
+      el('td', { text: o.offsetLabel }),
+      el('td', { text: o.priceTypeLabel }),
+      el('td', { text: o.price ? fmt(o.price, 4) : '市价' }),
+      el('td', { text: fmtInt(o.lots) }),
+      el('td', { text: o.filledPrice ? fmt(o.filledPrice, 4) : '--' }),
+      el('td', { text: o.fee ? fmt(o.fee, 2) : '--' }),
+      el('td', { class: signCls(o.pnl), text: o.offset === 'close' && o.pnl !== null ? signed(o.pnl) : '--' }),
+      el('td', { class: 'l ' + stCls, title: o.msg || '', text: o.status }),
+      el('td', {}, (() => {
+        if (o.status !== '待成交') return el('span', { class: 'mini', text: '—' });
+        const b = el('button', { class: 'btn', style: 'padding:3px 9px;font-size:11.5px', text: '撤单' });
+        b.addEventListener('click', async ev => {
+          ev.stopPropagation();
+          const r = await api('/api/cancel', { id: o.id });
+          toast(r.msg, r.ok ? 'ok' : 'err');
+          pollState();
+        });
+        return b;
+      })())
+    );
+    tb.appendChild(tr);
+  });
+}
+
+function renderTrades(list) {
+  const tb = $('#trdBody');
+  if (!list || !list.length) { tb.innerHTML = '<tr><td colspan="11" class="empty">暂无成交</td></tr>'; return; }
+  tb.innerHTML = '';
+  list.forEach(t => {
+    tb.appendChild(el('tr', {},
+      el('td', { class: 'l mini', text: t.ts }),
+      el('td', { class: 'l mini', text: t.id }),
+      el('td', { class: 'l code', text: t.code }),
+      el('td', { class: 'l', text: t.name }),
+      el('td', { class: t.offset === 'open' ? (t.dir === 'long' ? 'up' : 'down') : '', text: t.dirLabel }),
+      el('td', { text: t.offsetLabel }),
+      el('td', { text: fmt(t.price, 4) }),
+      el('td', { text: fmtInt(t.lots) }),
+      el('td', { text: fmt(t.fee, 2) }),
+      el('td', { class: signCls(t.pnl), text: t.pnl === null || t.pnl === undefined ? '--' : signed(t.pnl) }),
+      el('td', { class: 'l mini', text: t.closeMode || (t.margin ? '保证金 ' + fmt(t.margin, 0) : '') })
+    ));
+  });
+}
+
+function renderFlow(list) {
+  const tb = $('#flowBody');
+  if (!list || !list.length) { tb.innerHTML = '<tr><td colspan="5" class="empty">暂无资金流水</td></tr>'; return; }
+  tb.innerHTML = '';
+  list.forEach(f => {
+    tb.appendChild(el('tr', {},
+      el('td', { class: 'l mini', text: f.ts }),
+      el('td', { class: 'l', text: f.type }),
+      el('td', { class: f.amount >= 0 ? 'up' : 'down', text: (f.amount >= 0 ? '+' : '-') + '¥' + fmt(Math.abs(f.amount), 2) }),
+      el('td', { class: 'l mini', text: f.note || '' }),
+      el('td', { text: fmt(f.cashAfter, 2) })
+    ));
+  });
+}
+
+function renderLogs(list) {
+  const tb = $('#logBody');
+  if (!list || !list.length) { tb.innerHTML = '<tr><td colspan="3" class="empty">暂无日志</td></tr>'; return; }
+  tb.innerHTML = '';
+  list.forEach(l => {
+    tb.appendChild(el('tr', {},
+      el('td', { class: 'l mini', text: l.ts }),
+      el('td', { class: 'l' }, el('span', { class: 'tag', text: l.kind })),
+      el('td', { class: 'l', text: l.text })
+    ));
+  });
+}
+
+/* ---------------- 行情表 ---------------- */
+function renderChips() {
+  const ex = $('#exchChips');
+  ex.innerHTML = '';
+  const exchs = [];
+  S.contracts.forEach(c => { if (c.exchName && exchs.indexOf(c.exchName) < 0) exchs.push(c.exchName); });
+  const opt = [''].concat(exchs);
+  opt.forEach((e, i) => {
+    const c = el('span', { class: 'chip' + (S.exch === e ? ' on' : ''), text: e || '全部交易所' });
+    c.addEventListener('click', () => { S.exch = e; renderChips(); renderTable(); });
+    ex.appendChild(c);
+  });
+  const sec = $('#sectorChips');
+  sec.innerHTML = '';
+  const secs = (S.cfg && S.cfg['板块顺序']) || [];
+  [''].concat(secs).forEach(s => {
+    const c = el('span', { class: 'chip' + (S.sector === s ? ' on' : ''), text: s || '全部品种类型' });
+    c.addEventListener('click', () => { S.sector = s; renderChips(); renderTable(); });
+    sec.appendChild(c);
+  });
+}
+
+/* ---------------- 交易规则与费率表（东方财富口径） ---------------- */
+const EXCH_ORDER = { '上期所': 1, '上期能源': 2, '大商所': 3, '郑商所': 4, '中金所': 5, '广期所': 6 };
+const NIGHT_LABEL = { '2300': '夜盘至 23:00', '0100': '夜盘至次日 01:00', '0230': '夜盘至次日 02:30' };
+
+function renderRules() {
+  const tb = $('#ruleBody');
+  if (!tb) return;
+  const cfg = S.cfg || {};
+  const prm = cfg['品种参数'] || {};
+  const src = cfg['数据来源'] || {};
+  const note = $('#rulesNote');
+  if (note) {
+    note.innerHTML = '全表数值取自东方财富期货官网公示口径（抓取日期 ' + (src['_抓取日期'] || '--') +
+      '）：保证金率为 <b>公司保证金比例</b>，手续费为 <b>公司手续费标准</b>（官网口径「不高于以下标准」，多数品种约为交易所标准的 3 倍）。<br>' +
+      '<span class="warnp">' + (src['_口径提醒'] || '') + '</span>';
+  }
+  // 各品种主力（有行情的第一个合约）用于估算「做一手约需」
+  const liveOf = {};
+  (S.contracts || []).forEach(c => {
+    const q = S.quote[c.code];
+    if (!q || !q[1]) return;
+    if (!liveOf[c.variety]) liveOf[c.variety] = { code: c.code, p: q[1] };
+  });
+  const kw = (($('#ruleSearch') && $('#ruleSearch').value) || '').trim().toUpperCase();
+  const rows = [];
+  Object.keys(prm).forEach(k => {
+    const v = prm[k];
+    if (kw) {
+      const hay = (k + ' ' + (v['名称'] || '') + ' ' + (v['交易所'] || '')).toUpperCase();
+      if (hay.indexOf(kw) < 0) return;
+    }
+    rows.push({ seq: EXCH_ORDER[v['交易所']] || 9, k: k, v: v });
+  });
+  rows.sort((a, b) => a.seq - b.seq || a.k.localeCompare(b.k));
+  tb.innerHTML = rows.map(r => {
+    const v = r.v, f = v['手续费'] || {};
+    const mult = Number(v['合约乘数']) || 0, tick = Number(v['最小变动价位']) || 0;
+    const lv = liveOf[r.k];
+    const need = lv ? money(lv.p * mult * (Number(v['保证金率']) || 0)) : '--';
+    const day = v['交易所'] === '中金所'
+      ? '日盘 09:30-11:30 / 13:00-15:00' + (['TS', 'TF', 'T', 'TL'].indexOf(r.k) >= 0 ? '（国债至 15:15）' : '')
+      : '日盘 09:00-10:15 / 10:30-11:30 / 13:30-15:00';
+    return '<tr>' +
+      '<td class="l">' + (v['交易所'] || '--') + '</td>' +
+      '<td class="l">' + r.k + '</td>' +
+      '<td class="l">' + (v['名称'] || '') + '</td>' +
+      '<td>' + mult + ' <span class="mini">' + (v['单位'] || '') + '</span></td>' +
+      '<td>' + tick + '</td>' +
+      '<td>' + fmtPx(mult * tick) + '</td>' +
+      '<td>' + ((Number(v['保证金率']) || 0) * 100).toFixed(2) + '%</td>' +
+      '<td>±' + ((Number(v['涨跌停板']) || 0) * 100).toFixed(1) + '%</td>' +
+      '<td>' + need + '<span class="mini">' + (lv ? '　' + lv.code : '') + '</span></td>' +
+      '<td>' + feeText({ '手续费': f }, '开仓') + '</td>' +
+      '<td>' + feeText({ '手续费': f }, '平仓') + '</td>' +
+      '<td>' + feeText({ '手续费': f }, '平今') + '</td>' +
+      '<td class="l">' + (v['合约月份'] || '--') + '<br><span class="mini">最后交易日 ' + (v['最后交易日'] || '--') + '</span></td>' +
+      '<td class="l"><span class="mini">' + day + '<br>' + (NIGHT_LABEL[v['夜盘']] || '无夜盘') + '</span></td>' +
+      '</tr>';
+  }).join('') || '<tr><td colspan="14" class="empty">无匹配品种</td></tr>';
+}
+
+function filtered() {
+  const kw = S.kw.trim().toUpperCase();
+  const held = {};
+  if (S.state) (S.state.account.positions || []).forEach(p => held[p.code] = true);
+  let list = S.contracts.filter(c => {
+    if (S.exch && c.exchName !== S.exch) return false;
+    if (S.sector && c.sector !== S.sector) return false;
+    if (S.onlyPos && !held[c.code]) return false;
+    if (kw) {
+      const hay = (c.code + ' ' + c.name + ' ' + c.variety + ' ' + c.varietyName).toUpperCase();
+      if (hay.indexOf(kw) < 0) return false;
+    }
+    return true;
+  });
+  const k = S.sortKey;
+  list.sort((a, b) => {
+    let va, vb;
+    if (k === 'vol' || k === 'ccl') {
+      va = (S.quote[a.code] || [])[k === 'vol' ? 4 : 5] || 0;
+      vb = (S.quote[b.code] || [])[k === 'vol' ? 4 : 5] || 0;
+    } else {
+      va = a[k] || 0; vb = b[k] || 0;
+    }
+    return (va - vb) * S.sortDir;
+  });
+  return list;
+}
+
+function renderTable() {
+  const all = filtered();
+  const shown = S.limit > 0 ? all.slice(0, S.limit) : all;
+  const tb = $('#qBody');
+  tb.innerHTML = '';
+  S.rowEls = {};
+  if (!shown.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">没有符合条件的合约</td></tr>'; }
+  const held = {};
+  if (S.state) (S.state.account.positions || []).forEach(p => held[p.code] = (held[p.code] || 0) + (p.dir === 'long' ? p.lots : -p.lots));
+  shown.forEach(c => {
+    const tr = el('tr', { 'data-code': c.code },
+      el('td', { class: 'l code', text: c.code }),
+      el('td', { class: 'l name' }, el('span', { text: c.name }),
+        c.night ? el('span', { class: 'tag night', text: '夜' }) : null,
+        !c.paramKnown ? el('span', { class: 'tag warnp', text: '参数估算' }) : null),
+      el('td', { class: 'p', text: '--' }),
+      el('td', { class: 'z', text: '--' }),
+      el('td', { class: 'v', text: '--' }),
+      el('td', { class: 'c', text: '--' }),
+      el('td', { class: 'h', text: held[c.code] ? (held[c.code] > 0 ? '+' + held[c.code] : String(held[c.code])) : '—' })
+    );
+    tr.addEventListener('click', () => selectContract(c.code));
+    tb.appendChild(tr);
+    S.rowEls[c.code] = tr;
+  });
+  updateQuoteCells();
+  $('#listDesc').textContent = '共 ' + fmtInt(all.length) + ' 个合约' + (S.limit > 0 && all.length > S.limit ? '，显示前 ' + S.limit + ' 条' : '') + '　点击可下单';
+}
+
+function updateQuoteCells() {
+  for (const code in S.rowEls) {
+    const tr = S.rowEls[code], q = S.quote[code];
+    if (!q) continue;
+    const p = q[1], zdf = q[2], vol = q[4], ccl = q[5];
+    const cls = signCls(zdf);
+    tr.children[2].textContent = p === null ? '--' : fmt(p, p >= 1000 ? 1 : (p >= 100 ? 2 : (p >= 10 ? 2 : (p >= 1 ? 3 : 4))));
+    tr.children[2].className = cls;
+    tr.children[3].textContent = zdf === null ? '--' : signed(zdf) + '%';
+    tr.children[3].className = cls;
+    tr.children[4].textContent = fmtInt(vol);
+    tr.children[5].textContent = fmtInt(ccl);
+  }
+  if (S.sel && S.rowEls[S.sel]) S.rowEls[S.sel].classList.add('sel');
+}
+
+function selectContract(code) {
+  S.sel = code;
+  Object.keys(S.rowEls).forEach(k => S.rowEls[k].classList.toggle('sel', k === code));
+  updateSelBox();
+  updateEstimates();
+}
+
+function fmtPx(v) {
+  if (v === null || v === undefined || !isFinite(v) || v === '') return '--';
+  const a = Math.abs(Number(v));
+  return fmt(Number(v), a >= 1000 ? 1 : (a >= 1 ? 2 : 4));
+}
+
+/* 东方财富公司手续费标准的展示文本 */
+function feeText(prm, key) {
+  const f = (prm && prm['手续费']) || null;
+  if (!f) return '--';
+  const v = Number(f[key]) || 0;
+  return f['模式'] === '按手数' ? v + ' 元/手' : (Math.round(v * 1000000) / 100) + '‱';
+}
+
+function updateSelBox() {
+  const c = S.byCode[S.sel];
+  if (!c) return;
+  const q = S.quote[S.sel] || [];
+  const p = q[1], zdf = q[2], zde = q[3], zt = q[13], dt = q[14];
+  $('#selName').textContent = c.varietyName + ' ' + c.month;
+  $('#selCode').textContent = c.code + '　' + (c.exchange || c.exchName);
+  $('#selTag').innerHTML = (c.night ? '<span class="tag night">夜盘</span>' : '') +
+    (c.paramKnown ? '' : '<span class="tag warnp">参数估算</span>');
+  $('#selPx').textContent = fmtPx(p);
+  const z = $('#selZdf');
+  z.textContent = zdf === null || zdf === undefined ? '--' : signed(zdf) + '%　' + signed(zde, 2);
+  z.className = 'mini ' + signCls(zdf);
+  $('#selMult').textContent = c.mult + '　' + (c.unit || '');
+  $('#selTick').textContent = c.tick;
+  const mult = (S.state && S.state.settings['保证金倍数']) || 1;
+  $('#selRate').textContent = (c.marginRate * 100).toFixed(2) + '%' + (mult !== 1 ? '（×' + mult + '）' : '');
+  $('#selZt').textContent = fmtPx(zt);
+  $('#selDt').textContent = fmtPx(dt);
+  $('#selLimit').textContent = c.limitPct ? '±' + (c.limitPct * 100).toFixed(1) + '%' : '--';
+  const prm = (S.cfg && S.cfg['品种参数'] && S.cfg['品种参数'][c.variety]) || null;
+  $('#selFeeOpen').textContent = feeText(prm, '开仓');
+  $('#selFeeToday').textContent = feeText(prm, '平今');
+  $('#selJump').textContent = fmtPx((Number(c.tick) || 0) * (Number(c.mult) || 0));
+  $('#selRule').innerHTML = '<b>' + (c.exchange || c.exchName || '--') + '</b>　合约月份 ' +
+    (c.months || '--') + '　最后交易日 ' + (c.lastDay || '--') +
+    '<br>交易时段 ' + (c.session || '--');
+  $('#orderHint').textContent = '最新 ' + $('#selPx').textContent + '　' + (c.exchName || '');
+  updatePriceTip();
+}
+
+/* 限价委托价旁的涨跌停提示 */
+function updatePriceTip() {
+  const tip = $('#priceTip');
+  if (!tip) return;
+  if (!$('#fPriceType') || $('#fPriceType').value !== 'limit' || !S.sel) {
+    tip.style.display = 'none'; return;
+  }
+  const c = S.byCode[S.sel] || {};
+  const q = S.quote[S.sel] || [];
+  const zt = q[13], dt = q[14];
+  const pct = c.limitPct ? '（每日涨跌幅度 ±' + (c.limitPct * 100).toFixed(1) + '%，东方财富公示）' : '';
+  const on = S.state && S.state.settings['涨跌停校验'] !== false;
+  tip.style.display = '';
+  tip.innerHTML = '可委托区间 <b class="down">' + fmtPx(dt) + '</b> ~ <b class="up">' + fmtPx(zt) + '</b> ' + pct +
+    (on ? '' : '　<span class="tag warnp">涨跌停校验已关闭</span>');
+}
+
+/* ---------------- 下单面板 ---------------- */
+function currentPos() {
+  if (!S.state || !S.sel) return null;
+  const dir = S.dir;
+  return (S.state.account.positions || []).find(p => p.code === S.sel && p.dir === dir) || null;
+}
+
+function updateEstimates() {
+  const c = S.byCode[S.sel];
+  if (!c) return;
+  const q = S.quote[S.sel] || [];
+  const last = q[1];
+  const lots = Math.max(0, parseInt($('#fLots').value || '0', 10) || 0);
+  const pt = $('#fPriceType').value;
+  const px = pt === 'limit' ? (num($('#fPrice').value) || last) : last;
+  const a = S.state ? S.state.account : null;
+  const mult = (S.state && S.state.settings['保证金倍数']) || 1;
+  const feeDisc = (S.state && S.state.settings['手续费折扣']) || 1;
+
+  const closeMode = ($('#fCloseMode') && $('#fCloseMode').value) || 'auto';
+  if (px && a) {
+    const margin = px * c.mult * lots * c.marginRate * mult;
+    const fee = estimateFee(c, px, lots, S.offset, S.cfg, feeDisc, closeMode);
+    $('#estMargin').textContent = money(margin);
+    $('#estFee').textContent = money(fee);
+    const per = px * c.mult * c.marginRate * mult + estimateFee(c, px, 1, 'open', S.cfg, feeDisc);
+    $('#estMax').textContent = per > 0 ? fmtInt(Math.floor(a.available / per)) + ' 手' : '--';
+  } else {
+    $('#estMargin').textContent = '--'; $('#estFee').textContent = '--'; $('#estMax').textContent = '--';
+  }
+  // 费率口径提示
+  const prm = (S.cfg && S.cfg['品种参数'] && S.cfg['品种参数'][c.variety]) || null;
+  if (prm) {
+    const basis = S.offset === 'open' ? '开仓 ' + feeText(prm, '开仓')
+      : (closeMode === 'today' ? '平今 ' + feeText(prm, '平今')
+        : closeMode === 'yesterday' ? '平昨 ' + feeText(prm, '平仓')
+          : '平昨 ' + feeText(prm, '平仓') + ' / 平今 ' + feeText(prm, '平今'));
+    $('#estFeeBasis').textContent = basis + (feeDisc !== 1 ? '（×' + feeDisc + '）' : '');
+  } else {
+    $('#estFeeBasis').textContent = '参数缺失';
+  }
+  const p = currentPos();
+  if (S.offset === 'close') {
+    $('#lblClosable').textContent = '当前可平（本方向）';
+    $('#estClosable').textContent = p ? p.lots + ' 手（今 ' + p.todayLots + ' / 昨 ' + p.yesterdayLots + '）' : '0 手（无该方向持仓）';
+  } else {
+    $('#lblClosable').textContent = '该合约现有持仓';
+    const anypos = (S.state && S.state.account.positions || []).filter(x => x.code === S.sel);
+    $('#estClosable').textContent = anypos.length ? anypos.map(x => x.dirLabel + x.lots + '手').join('、') : '无';
+  }
+  $('#btnSubmit').textContent = ({ buy: '买入开多', sell: '卖出开空', closebuy: '平多仓', closesell: '平空仓' })[dirKey()];
+  $('#btnSubmit').className = 'btn ' + (S.offset === 'open' ? (S.dir === 'long' ? 'buy' : 'sell') : 'primary');
+  updatePriceTip();
+}
+
+/* 按东方财富公司手续费标准估算：平仓区分平昨 / 平今费率 */
+function estimateFee(c, px, lots, offset, cfg, disc, closeMode) {
+  const prm = (cfg && cfg['品种参数'] && cfg['品种参数'][c.variety]) || null;
+  const f = prm && prm['手续费'];
+  if (!f) return 0;
+  const mode = f['模式'] || '按成交额';
+  const amtOf = (v) => mode === '按手数' ? v * lots : px * c.mult * lots * v;
+  let amt = 0;
+  if (offset !== 'close') {
+    amt = amtOf(Number(f['开仓']) || 0);
+  } else {
+    const p = currentPos();
+    let nToday = 0, nYest = lots;
+    if (p) {
+      const t = p.todayLots || 0;
+      if (closeMode === 'today') { nToday = lots; nYest = 0; }
+      else if (closeMode === 'yesterday') { nToday = 0; nYest = lots; }
+      else { nToday = Math.min(lots, t); nYest = lots - nToday; }
+    }
+    if (mode === '按手数') {
+      amt = (Number(f['平今']) || 0) * nToday + (Number(f['平仓']) || 0) * nYest;
+    } else {
+      amt = px * c.mult * nToday * (Number(f['平今']) || 0)
+        + px * c.mult * nYest * (Number(f['平仓']) || 0);
+    }
+  }
+  return amt * (disc === undefined || disc === null ? 1 : disc);
+}
+
+function dirKey() {
+  if (S.offset === 'open') return S.dir === 'long' ? 'buy' : 'sell';
+  return S.dir === 'long' ? 'closebuy' : 'closesell';
+}
+
+function setDir(dir, offset) {
+  S.dir = dir; S.offset = offset;
+  document.querySelectorAll('.dirbtn').forEach(b => {
+    b.classList.toggle('on', b.dataset.dir === dir && b.dataset.offset === offset);
+  });
+  $('#rowCloseMode').style.display = offset === 'close' ? '' : 'none';
+  updateEstimates();
+}
+
+async function submitOrder() {
+  const c = S.byCode[S.sel];
+  if (!c) { toast('请先选择合约', 'err'); return; }
+  const lots = parseInt($('#fLots').value || '0', 10);
+  if (!lots || lots <= 0) { toast('请填写正确的手数', 'err'); return; }
+  const pt = $('#fPriceType').value;
+  const body = {
+    code: c.code, dir: S.dir, offset: S.offset, priceType: pt, lots: lots,
+    closeMode: $('#fCloseMode').value,
+  };
+  if (pt === 'limit') {
+    const px = num($('#fPrice').value);
+    if (!px || px <= 0) { toast('限价单请填写委托价', 'err'); return; }
+    body.price = px;
+  }
+  $('#btnSubmit').disabled = true;
+  try {
+    const r = await api('/api/order', body);
+    toast((r.ok ? '下单成功：' : '下单失败：') + r.msg, r.ok ? 'ok' : 'err');
+    if (r.ok && pt === 'limit' && r.msg.indexOf('挂单') >= 0) { /* 挂单提示 */ }
+    await pollState();
+  } catch (e) { toast('下单请求失败：' + e.message, 'err'); }
+  $('#btnSubmit').disabled = false;
+}
+
+async function quickClose(p) {
+  if (!confirm('确认以市价平掉「' + p.name + ' ' + p.dirLabel + ' ' + p.lots + ' 手」？')) return;
+  try {
+    const r = await api('/api/close', { code: p.code, dir: p.dir, lots: p.lots, closeMode: 'auto' });
+    toast((r.ok ? '平仓成功：' : '平仓失败：') + r.msg, r.ok ? 'ok' : 'err');
+    await pollState();
+  } catch (e) { toast('平仓失败：' + e.message, 'err'); }
+}
+
+function toast(text, kind) {
+  const m = $('#orderMsg');
+  m.className = 'msgline show ' + (kind || 'info');
+  m.textContent = text;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { m.className = 'msgline'; }, 6000);
+}
+
+/* ---------------- 权益曲线 ---------------- */
+function initCurve() {
+  if (!window.echarts) return;
+  S.curveChart = echarts.init($('#curveChart'), null, { renderer: 'canvas' });
+  window.addEventListener('resize', () => S.curveChart && S.curveChart.resize());
+}
+
+function renderCurve(curve) {
+  if (!S.curveChart || !curve.length) return;
+  const xs = curve.map(p => p.ts.slice(5, 16));
+  const eq = curve.map(p => p.equity);
+  const cash = curve.map(p => p.cash);
+  const mg = curve.map(p => p.margin);
+  S.curveChart.setOption({
+    animation: false,
+    grid: { left: 66, right: 22, top: 34, bottom: 46 },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255,255,255,.97)', borderColor: '#dfe6ef',
+      textStyle: { color: '#1b2432', fontSize: 12 },
+      valueFormatter: v => v === null ? '--' : '¥' + fmt(v, 2),
+    },
+    legend: { top: 2, textStyle: { fontSize: 11, color: '#5b6b80' }, data: ['动态权益', '静态结存', '占用保证金'] },
+    xAxis: { type: 'category', data: xs, boundaryGap: false, axisLabel: { fontSize: 10, color: '#8b9aad' }, axisLine: { lineStyle: { color: '#dfe6ef' } } },
+    yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10, color: '#8b9aad', formatter: v => (v / 10000).toFixed(1) + '万' }, splitLine: { lineStyle: { color: '#eaeff5' } } },
+    series: [
+      { name: '动态权益', type: 'line', data: eq, showSymbol: false, lineStyle: { width: 2, color: '#2563eb' }, itemStyle: { color: '#2563eb' }, areaStyle: { color: 'rgba(37,99,235,.07)' } },
+      { name: '静态结存', type: 'line', data: cash, showSymbol: false, lineStyle: { width: 1.4, color: '#0a9d5c' }, itemStyle: { color: '#0a9d5c' } },
+      { name: '占用保证金', type: 'line', data: mg, showSymbol: false, lineStyle: { width: 1.4, color: '#e2683a', type: 'dashed' }, itemStyle: { color: '#e2683a' } },
+    ],
+  }, true);
+}
+
+/* ---------------- 弹窗 ---------------- */
+function openMask(id) { $('#' + id).classList.add('on'); }
+function closeMask(id) { $('#' + id).classList.remove('on'); }
+
+function openCash(mode) {
+  S.cashMode = mode;
+  $('#cashTitle').textContent = mode === 'deposit' ? '模拟资金注入' : '模拟资金提取';
+  $('#cashConfirm').textContent = mode === 'deposit' ? '确认注入' : '确认提取';
+  $('#cashConfirm').className = 'btn ' + (mode === 'deposit' ? 'primary' : 'danger');
+  const a = S.state ? S.state.account : null;
+  $('#cashAmount').value = mode === 'deposit' ? 100000 : 10000;
+  $('#cashNote').value = '';
+  $('#cashTip').innerHTML = mode === 'deposit'
+    ? '注入的是<b>虚拟资金</b>，仅记录在本机 <code>账户数据/account.json</code>，不涉及任何真实资金。'
+    : '可提取上限为<b>可用资金 ' + (a ? money(a.available) : '--') + '</b>（占用中的保证金需先平仓释放）。';
+  openMask('maskCash');
+  setTimeout(() => $('#cashAmount').focus(), 60);
+}
+
+function openSettings() {
+  const s = S.state ? S.state.settings : null;
+  if (!s) { toast('账户状态未加载', 'err'); return; }
+  $('#sMarginMult').value = s['保证金倍数'];
+  $('#sFeeDisc').value = s['手续费折扣'];
+  $('#sSlip').value = s['滑点跳数'];
+  $('#sRiskLine').value = Math.round(s['强平线'] * 100);
+  $('#sAutoLiq').checked = !!s['自动强平'];
+  $('#sSessionOnly').checked = !!s['仅交易时段下单'];
+  $('#sLimitCheck').checked = s['涨跌停校验'] === undefined ? true : !!s['涨跌停校验'];
+  openMask('maskSet');
+}
+
+/* ---------------- 事件绑定 ---------------- */
+function bind() {
+  document.querySelectorAll('.dirbtn').forEach(b => {
+    b.addEventListener('click', () => setDir(b.dataset.dir, b.dataset.offset));
+  });
+  $('#fPriceType').addEventListener('change', e => {
+    $('#rowPrice').style.display = e.target.value === 'limit' ? '' : 'none';
+    if (e.target.value === 'limit' && !$('#fPrice').value) {
+      const q = S.quote[S.sel] || []; if (q[1]) $('#fPrice').value = q[1];
+    }
+    updateEstimates();
+  });
+  $('#btnUseLast').addEventListener('click', () => {
+    const q = S.quote[S.sel] || []; if (q[1]) $('#fPrice').value = q[1]; updateEstimates();
+  });
+  $('#btnUseZt').addEventListener('click', () => {
+    const q = S.quote[S.sel] || []; if (q[13]) $('#fPrice').value = q[13]; updateEstimates();
+  });
+  $('#btnUseDt').addEventListener('click', () => {
+    const q = S.quote[S.sel] || []; if (q[14]) $('#fPrice').value = q[14]; updateEstimates();
+  });
+  $('#fPrice').addEventListener('input', updateEstimates);
+  $('#fLots').addEventListener('input', updateEstimates);
+  $('#fCloseMode').addEventListener('change', updateEstimates);
+  $('#btnHalf').addEventListener('click', () => {
+    const c = S.byCode[S.sel]; const q = S.quote[S.sel] || [];
+    if (!c || !q[1] || !S.state) return;
+    const mult = S.state.settings['保证金倍数'] || 1;
+    const per = q[1] * c.mult * c.marginRate * mult;
+    $('#fLots').value = Math.max(1, Math.floor(S.state.account.available / 2 / per));
+    updateEstimates();
+  });
+  $('#btnFull').addEventListener('click', () => {
+    const c = S.byCode[S.sel]; const q = S.quote[S.sel] || [];
+    if (!c || !q[1] || !S.state) return;
+    const mult = S.state.settings['保证金倍数'] || 1;
+    const per = q[1] * c.mult * c.marginRate * mult;
+    $('#fLots').value = Math.max(1, Math.floor(S.state.account.available / per));
+    updateEstimates();
+  });
+  $('#btnSubmit').addEventListener('click', submitOrder);
+  $('#qSearch').addEventListener('input', e => { S.kw = e.target.value; renderTable(); });
+  $('#chipSort').addEventListener('click', () => {
+    const order = ['vol', 'ccl', 'zdf', 'p'];
+    const label = { vol: '按成交量降序', ccl: '按持仓量降序', zdf: '按涨跌幅降序', p: '按最新价降序' };
+    let i = order.indexOf(S.sortKey); i = (i + 1) % order.length;
+    S.sortKey = order[i]; S.sortDir = -1;
+    $('#chipSort').textContent = label[S.sortKey];
+    renderTable();
+  });
+  $('#chipLimit').addEventListener('click', () => {
+    S.limit = S.limit === 200 ? 0 : 200;
+    $('#chipLimit').textContent = S.limit ? '显示前 200 条' : '显示全部';
+    $('#chipLimit').classList.toggle('on', !S.limit);
+    renderTable();
+  });
+  $('#chipOnlyPos').addEventListener('click', () => {
+    S.onlyPos = !S.onlyPos;
+    $('#chipOnlyPos').classList.toggle('on', S.onlyPos);
+    renderTable();
+  });
+  $('#btnDeposit').addEventListener('click', () => openCash('deposit'));
+  $('#btnWithdraw').addEventListener('click', () => openCash('withdraw'));
+  $('#btnSettings').addEventListener('click', openSettings);
+  $('#btnRefresh').addEventListener('click', async () => {
+    $('#btnRefresh').textContent = '刷新中…';
+    try { const r = await api('/api/refresh', {}); toast(r.msg, r.ok ? 'ok' : 'err'); }
+    catch (e) { toast('刷新失败：' + e.message, 'err'); }
+    $('#btnRefresh').textContent = '刷新行情';
+    await pollQuotes(); await pollState();
+  });
+  $('#cashQuick').addEventListener('click', e => {
+    if (e.target.dataset.v) $('#cashAmount').value = e.target.dataset.v;
+  });
+  $('#cashConfirm').addEventListener('click', async () => {
+    const amt = num($('#cashAmount').value);
+    if (!amt || amt <= 0) { alert('请输入正确的金额'); return; }
+    const r = await api(S.cashMode === 'deposit' ? '/api/deposit' : '/api/withdraw',
+      { amount: amt, note: $('#cashNote').value });
+    if (!r.ok) { alert(r.msg); return; }
+    closeMask('maskCash');
+    toast(r.msg, 'ok');
+    await pollState();
+  });
+  document.querySelectorAll('[data-close]').forEach(b =>
+    b.addEventListener('click', () => closeMask(b.dataset.close)));
+  document.querySelectorAll('#multQuick .chip').forEach(c =>
+    c.addEventListener('click', () => $('#sMarginMult').value = c.dataset.v));
+  document.querySelectorAll('#feeQuick .chip').forEach(c =>
+    c.addEventListener('click', () => $('#sFeeDisc').value = c.dataset.v));
+  $('#setConfirm').addEventListener('click', async () => {
+    const r = await api('/api/settings', {
+      '保证金倍数': num($('#sMarginMult').value) || 1,
+      '手续费折扣': num($('#sFeeDisc').value),
+      '滑点跳数': num($('#sSlip').value) || 0,
+      '强平线': (num($('#sRiskLine').value) || 100) / 100,
+      '自动强平': $('#sAutoLiq').checked,
+      '仅交易时段下单': $('#sSessionOnly').checked,
+      '涨跌停校验': $('#sLimitCheck').checked,
+    });
+    closeMask('maskSet');
+    toast(r.msg, r.ok ? 'ok' : 'err');
+    await pollState();
+  });
+  $('#btnResetCash').addEventListener('click', async () => {
+    if (!confirm('将清空全部持仓 / 委托 / 成交记录，但保留资金结存与出入金流水。确认？')) return;
+    const r = await api('/api/reset', { keepCash: true });
+    closeMask('maskSet'); toast(r.msg, 'ok'); await pollState();
+  });
+  $('#btnResetAll').addEventListener('click', async () => {
+    if (!confirm('将清空全部持仓 / 委托 / 成交 / 资金流水，账户归零。此操作不可撤销，确认？')) return;
+    const r = await api('/api/reset', { keepCash: false });
+    closeMask('maskSet'); toast(r.msg, 'ok'); await pollState();
+  });
+  $('#btnCancelAll').addEventListener('click', async () => {
+    const r = await api('/api/cancel_all', {});
+    toast(r.msg, 'ok'); await pollState();
+  });
+  $('#tabs').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + b.dataset.p));
+    if (b.dataset.p === 'curve' && S.curveChart) setTimeout(() => S.curveChart.resize(), 40);
+    if (b.dataset.p === 'rules') renderRules();
+  });
+  if ($('#ruleSearch')) $('#ruleSearch').addEventListener('input', renderRules);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeMask('maskCash'); closeMask('maskSet'); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitOrder();
+  });
+}
+
+bind();
+boot();
+</script>
+<script src="vendor/quant-terminal.js"></script>
+</body>
+</html>

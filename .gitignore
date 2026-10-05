@@ -1,0 +1,30 @@
+# ---- 运行期数据（各账户独立、仅存本机，不入库）----
+账户数据/
+行情缓存/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- 打包中间产物（成品 exe 走 GitHub Release，不进仓库）----
+期货模拟交易终端.exe
+dist/
+_build/
+打包tmp/
+_打包.spec
+_版本信息.txt
+图标预览.png
+
+# ---- 截图原图（已整理进 docs/images，不入库）----
+预览-*.png
+界面预览*.png
+
+# ---- 临时与日志 ----
+*.log
+_tmp/
+.svc/
+
+# ---- 系统 ----
+Thumbs.db
+.DS_Store

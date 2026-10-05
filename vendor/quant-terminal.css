@@ -1,0 +1,225 @@
+/* =====================================================================
+   国内期货模拟交易终端 · 行情 / 指标 / 策略 / 回测 / 复盘  样式扩展
+   与 交易面板.html 共用 :root 变量，浅色主题
+   ===================================================================== */
+
+/* ---------- 顶部页切换 ---------- */
+.topnav{display:flex;gap:4px;margin:12px 0 14px;flex-wrap:wrap;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:6px;box-shadow:var(--shadow)}
+.topnav button{appearance:none;border:0;background:transparent;font:inherit;font-size:13px;
+  padding:8px 15px;border-radius:7px;cursor:pointer;color:var(--txt2);white-space:nowrap}
+.topnav button:hover{background:var(--panel2);color:var(--txt)}
+.topnav button.on{background:var(--accent);color:#fff;font-weight:600}
+.page{display:none}
+.page.on{display:block}
+
+/* ---------- 通用小件 ---------- */
+.w100{width:100%}
+.w60{width:60px}
+.sp{flex:1}
+.sel{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);
+  border-radius:7px;background:#fff;color:var(--txt);min-width:130px}
+.ck{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--txt2);cursor:pointer}
+.ck input{margin:0}
+.mkrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.mkrow .lbl{font-size:12px;color:var(--txt3);width:34px;flex:none}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{appearance:none;border:0;background:#fff;font:inherit;font-size:12.5px;
+  padding:6px 11px;cursor:pointer;color:var(--txt2);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:var(--panel2)}
+.seg button.on{background:var(--accent);color:#fff;font-weight:600}
+
+/* 指标选择 chip + 参数 */
+.indpick{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.indchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;
+  padding:4px 8px;border:1px solid var(--line);border-radius:20px;background:#fff;
+  cursor:pointer;color:var(--txt2)}
+.indchip:hover{border-color:#c3cfe0}
+.indchip.on{background:var(--accent-soft);border-color:#bcd3ff;color:var(--accent2);font-weight:600}
+.indchip input{width:78px;font:inherit;font-size:11.5px;padding:2px 5px;
+  border:1px solid var(--line);border-radius:5px;color:var(--txt);background:#fff}
+
+/* ---------- 行情页 ---------- */
+.mk{display:grid;grid-template-columns:296px minmax(0,1fr);gap:14px;align-items:start}
+.mk-side{position:sticky;top:72px}
+.mk-side .bd{padding:11px 12px 4px}
+.mk-side input[type=search]{margin-bottom:8px}
+.mk-side .seg{margin-bottom:8px;display:flex}
+.mk-side .seg button{flex:1;border-right:1px solid var(--line)}
+.mk-list{max-height:calc(100vh - 300px);min-height:340px;overflow:auto}
+.mk-list table{font-size:12.5px}
+.mk-list tbody tr{cursor:pointer}
+.mk-list tbody tr.on{background:var(--accent-soft)}
+.mk-list tbody tr.on td{border-bottom-color:#cfe0ff}
+.mk-main{min-width:0}
+.bigpx{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.chg{font-size:12.5px;font-weight:600}
+.kchart{width:100%;height:660px}
+.kchart.small{height:420px}
+
+/* 指标库弹窗 */
+.indlib{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.indlib .it{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--panel2)}
+.indlib .it b{font-size:12.5px}
+.indlib .it .k{font-size:11.5px;color:var(--txt3)}
+.indlib .it .d{font-size:12px;color:var(--txt2);margin-top:3px;line-height:1.5}
+
+/* ---------- 表单网格 ---------- */
+.frm{display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));gap:11px 14px}
+.frm .fi{display:flex;flex-direction:column;gap:4px}
+.frm .fi.wide{grid-column:1/-1}
+.frm label{font-size:11.5px;color:var(--txt3)}
+.frm input,.frm select{font:inherit;font-size:12.5px;padding:6px 8px;
+  border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--txt);width:100%}
+.frm input:focus,.frm select:focus{outline:0;border-color:var(--accent)}
+.frm .hint{font-size:11.5px;color:var(--txt3);line-height:1.5}
+.frm .acts{grid-column:1/-1;display:flex;gap:9px;align-items:center;flex-wrap:wrap;
+  padding-top:5px;border-top:1px dashed var(--line2);margin-top:3px}
+.sec-h{grid-column:1/-1;font-size:12px;font-weight:650;color:var(--txt2);
+  border-bottom:1px solid var(--line2);padding-bottom:5px;margin-top:4px}
+
+/* ---------- 策略页 ---------- */
+.st{display:grid;grid-template-columns:340px minmax(0,1fr);gap:14px;align-items:start}
+.st-lib .bd{padding:10px;max-height:620px;overflow:auto}
+.stcard{border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:9px;
+  background:var(--panel2);cursor:pointer}
+.stcard:hover{border-color:#c3cfe0}
+.stcard.on{border-color:var(--accent);background:var(--accent-soft)}
+.stcard .t{display:flex;align-items:center;gap:7px}
+.stcard .t b{font-size:13px}
+.stcard .m{font-size:11.5px;color:var(--txt3);margin-top:3px;line-height:1.55}
+.stcard .ops{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.stcard .ops button{font-size:11px;padding:3px 8px}
+.badge{font-size:10.5px;padding:1px 7px;border-radius:20px;border:1px solid var(--line);
+  background:#fff;color:var(--txt3);white-space:nowrap}
+.badge.on{background:#e9f7f0;border-color:#c6ebd8;color:#0a7a48;font-weight:600}
+.badge.dry{background:var(--warnbg);border-color:#f0dcb4;color:var(--warn)}
+.stlog{font-size:11.5px;color:var(--txt2);line-height:1.6;max-height:210px;overflow:auto;
+  font-family:ui-monospace,Consolas,"Courier New",monospace;background:var(--panel2);
+  border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.stlog div{padding:2px 0;border-bottom:1px dotted var(--line2)}
+
+/* ---------- 回测 / 复盘 结果 ---------- */
+.kpigrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px}
+.kpibox{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--panel2)}
+.kpibox .k{font-size:11.5px;color:var(--txt3)}
+.kpibox .v{font-size:17px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpibox .x{font-size:11px;color:var(--txt3);margin-top:1px}
+.kpibox.score{background:linear-gradient(180deg,#eef4ff,#fff);border-color:#cfdfff}
+.dd-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px;margin-bottom:12px}
+.chart2{width:100%;height:290px}
+.chart3{width:100%;height:250px}
+.trade-tbl td.num{font-variant-numeric:tabular-nums}
+.rp-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rp-ctrl .cur{font-size:12.5px;color:var(--txt2)}
+.rp-side{display:grid;grid-template-columns:minmax(0,1fr) 262px;gap:14px;align-items:start}
+.rp-info{border:1px solid var(--line);border-radius:9px;padding:11px 12px;background:var(--panel2)}
+.rp-info .row{display:flex;justify-content:space-between;padding:3px 0;font-size:12.5px;
+  border-bottom:1px dotted var(--line2)}
+.rp-info .row:last-child{border-bottom:0}
+.rp-info .row span:first-child{color:var(--txt3)}
+.rp-info h4{margin:0 0 7px;font-size:12.5px;color:var(--txt2)}
+.range{width:100%}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:#fff;border:1px solid var(--line);
+  color:var(--txt2)}
+
+/* 净值涨跌 */
+.up{color:var(--up)}
+.down{color:var(--down)}
+.flat{color:var(--flat)}
+
+/* =====================================================================
+   资金管理与仓位管理区块（策略 / 回测 / 复盘 共用）
+   ===================================================================== */
+.mm-host{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));
+  gap:11px 14px}
+.mm-presets{grid-column:1/-1;display:flex;gap:7px;align-items:center;flex-wrap:wrap;
+  padding:8px 10px;background:linear-gradient(180deg,#f4f8ff,#fbfdff);
+  border:1px solid #dbe7fb;border-radius:9px}
+.mm-presets .btn.tiny{font-size:11.5px;padding:4px 11px;border-radius:20px;
+  background:#fff;border-color:#c9dcfb;color:var(--accent2);font-weight:600}
+.mm-presets .btn.tiny:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.mm-presets .mini{margin-left:auto}
+.mm-sum{grid-column:1/-1;font-size:12px;line-height:1.65;color:var(--txt2);
+  background:var(--panel2);border:1px dashed var(--line);border-radius:8px;padding:7px 11px}
+.mm-group{grid-column:1/-1;border:1px solid var(--line);border-radius:9px;
+  background:var(--panel2);overflow:hidden}
+.mm-group>summary{cursor:pointer;user-select:none;font-size:12.5px;font-weight:650;
+  color:var(--txt2);padding:8px 12px;background:#fff;list-style:none;
+  border-bottom:1px solid transparent}
+.mm-group>summary::-webkit-details-marker{display:none}
+.mm-group>summary::before{content:'▸';display:inline-block;width:14px;color:var(--txt3);
+  transition:transform .12s}
+.mm-group[open]>summary::before{content:'▾'}
+.mm-group[open]>summary{border-bottom-color:var(--line2)}
+.mm-group>summary:hover{color:var(--accent2)}
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));
+  gap:10px 14px;padding:11px 12px}
+.mm-grid .fi.mm-ck{justify-content:flex-end}
+.mm-grid .fi.mm-ck label{order:2;font-size:12px;color:var(--txt2)}
+.mm-grid .fi.mm-ck input[type=checkbox]{order:1;width:15px;height:15px;accent-color:var(--accent)}
+.mm-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--txt2)}
+.btn.tiny{font-size:11px;padding:3px 9px}
+.sep-v{width:1px;height:18px;background:var(--line);margin:0 2px;flex:none}
+
+/* =====================================================================
+   复盘记录：折叠 / 全部字段 / 复制 / 导出
+   ===================================================================== */
+.sp-tools{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.rec-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;
+  padding:0 0 10px;border-bottom:1px dashed var(--line2);margin-bottom:2px}
+.rec-tools .mini{margin-left:auto;max-width:420px;text-align:right;line-height:1.5}
+.rec-table{table-layout:auto}
+.rec-table thead th{font-size:11.5px;padding:7px 8px}
+.rec-table tbody td{padding:7px 8px;white-space:nowrap}
+.rec-table tbody td.l{white-space:normal;min-width:132px}
+.rec-table tbody tr.grp{cursor:pointer}
+.rec-table tbody tr.grp:hover td{background:var(--accent-soft)}
+.rec-table tbody tr.grp.on td{background:var(--accent-soft)}
+.rec-table tbody tr.sub>td{background:#fafbfe;padding:0 0 8px;
+  border-bottom:1px solid var(--line2)}
+.rec-table tbody tr.sub[hidden]{display:none}
+.rec-table .tg{color:var(--txt3);font-size:11px;width:20px;text-align:center}
+.rec-table .empty{padding:26px 14px;text-align:center;color:var(--txt3);font-size:12.5px}
+.rec-detail{padding:9px 12px 2px 34px;display:flex;flex-direction:column;gap:8px}
+.rec-detail .leg{border:1px solid var(--line);border-radius:8px;background:#fff;
+  padding:8px 11px}
+.rec-detail .leg-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  padding-bottom:6px;margin-bottom:6px;border-bottom:1px dotted var(--line2)}
+.rec-detail .leg-h .tag{font-weight:650}
+.rec-detail .leg-h .tag.open{background:#fdf0ef;border-color:#f7d3d0;color:#b32b23}
+.rec-detail .leg-h .tag.close{background:#e9f7f0;border-color:#c6ebd8;color:#0a7a48}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:4px 12px}
+.kv-i{display:flex;align-items:baseline;gap:6px;font-size:12px;min-width:0}
+.kv-i i{font-style:normal;color:var(--txt3);flex:none;min-width:58px}
+.kv-i b{font-variant-numeric:tabular-nums;font-weight:600;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.rp-closed{margin:10px 0 4px;padding:10px 13px;font-size:12.5px;line-height:1.7;
+  color:#0a7a48;background:#eefaf3;border:1px solid #c6ebd8;border-radius:9px}
+.rp-closed b{color:#076b3f}
+
+@media (max-width:1180px){
+  .mk{grid-template-columns:1fr}
+  .mk-side{position:static}
+  .st{grid-template-columns:1fr}
+  .rp-side{grid-template-columns:1fr}
+  .indlib{grid-template-columns:1fr}
+}
+
+/* ---------------- 账户 · 银期转账 ---------------- */
+.acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.acc-tbl{overflow-x:auto}
+.acc-tbl table{font-size:12.5px}
+.acc-tbl th{font-size:11.5px;padding:7px 8px;color:var(--txt3);text-align:left;
+  border-bottom:1px solid var(--line2);white-space:nowrap}
+.acc-tbl td{padding:7px 8px;border-bottom:1px dashed var(--line2);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.acc-tbl td.act{white-space:nowrap}
+.acc-tbl .empty{padding:22px 14px;text-align:center;color:var(--txt3);font-size:12.5px}
+.acc-in{color:#0a7a48;font-weight:600}
+.acc-out{color:#b32b23;font-weight:600}
+#accPill b{color:var(--txt)}
+@media (max-width:1180px){ .acc-grid{grid-template-columns:1fr} }
